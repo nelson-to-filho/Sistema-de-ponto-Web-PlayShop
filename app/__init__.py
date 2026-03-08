@@ -13,22 +13,24 @@ login_manager.login_view = "auth.login"
 login_manager.login_message = None
 
 
-
 @login_manager.user_loader
 def load_user(user_id):
     from app.models import Usuario
     return Usuario.query.get(int(user_id))
 
-def create_app():
 
+def create_app():
     load_dotenv()
 
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    database_url = os.getenv("DATABASE_URL")
+    if database_url and database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
 
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key")
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -36,8 +38,7 @@ def create_app():
 
     from app import models
 
-    # Blueprints    
-    from app.routes.main import  main_bp
+    from app.routes.main import main_bp
     app.register_blueprint(main_bp)
 
     from app.routes.admin import admin_bp
@@ -50,4 +51,3 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     return app
-
