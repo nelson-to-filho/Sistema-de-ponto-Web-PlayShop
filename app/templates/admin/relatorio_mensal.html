@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Relatório Mensal{% endblock %}
+{% block content %}
+
+<h2 class="h1">Relatório mensal</h2>
+
+<div class="card">
+  <form method="get" class="form form-wide">
+    <div class="form-row">
+      <label>Funcionário</label>
+      <select name="func_id">
+        <option value="">(selecione)</option>
+        {% for f in funcionarios %}
+        <option value="{{ f.id }}" {% if filtro_func_id|string==f.id|string %}selected{% endif %}>
+          {{ f.usuario.nome }} (id {{ f.id }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Mês</label>
+      <input type="month" name="mes" value="{{ mes_value }}">
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Gerar</button>
+
+      {% if funcionario %}
+      <a class="btn btn-outline"
+        href="{{ url_for('admin.relatorio_mensal_csv', func_id=funcionario.id, mes=mes_value) }}">
+        Baixar CSV
+      </a>
+      {% endif %}
+
+      <a class="btn btn-outline" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    </div>
+  </form>
+</div>
+
+{% if funcionario %}
+<hr class="sep">
+
+<h3 class="h2">Funcionário: {{ funcionario.usuario.nome }}</h3>
+<p class="muted">E-mail: {{ funcionario.usuario.email }}</p>
+
+<div class="card">
+  <p><b>Total previsto:</b> {{ min_to_hhmm(total_prev) }}</p>
+  <p><b>Total trabalhado:</b> {{ min_to_hhmm(total_trab) }}</p>
+  <p><b>Saldo do mês:</b> {{ min_to_hhmm(total_saldo) }}</p>
+</div>
+
+<hr class="sep">
+
+<h3 class="h2">Dias</h3>
+
+{% if linhas %}
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Status</th>
+        <th>Previsto</th>
+        <th>Trabalhado</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in linhas %}
+      <tr>
+        <td>{{ r.data.strftime("%d/%m/%Y") }}</td>
+        <td>{{ r.status }}</td>
+        <td>{{ min_to_hhmm(r.prev) }}</td>
+        <td>{{ min_to_hhmm(r.trab) }}</td>
+        <td>{{ min_to_hhmm(r.saldo) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="muted">Nenhum dia calculado neste mês ainda.</p>
+{% endif %}
+{% endif %}
+
+{% endblock %}

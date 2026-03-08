@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Funcionários{% endblock %}
+{% block content %}
+
+<h2 class="h1">Funcionários</h2>
+
+<p>
+  <a class="btn btn-accent" href="{{ url_for('admin.novo_funcionario') }}">Cadastrar funcionário</a>
+</p>
+
+<ul class="list">
+  {% for f in funcionarios %}
+  <li class="card">
+    <b>{{ f.usuario.nome }}</b> — {{ f.usuario.email }}
+    <div class="actions actions-fixed mt-10">
+      <a class="btn btn-outline" href="{{ url_for('admin.pontos_funcionario', func_id=f.id) }}">Ver pontos</a>
+      <a class="btn btn-outline" href="{{ url_for('admin.editar_funcionario', func_id=f.id) }}">Editar Funcionário</a>
+
+      <form method="post" action="{{ url_for('admin.reset_senha', user_id=f.usuario.id) }}"
+        onsubmit="return confirm('Tem certeza que deseja resetar a senha deste funcionário? Uma nova senha temporária será gerada.');">
+        <button class="btn btn-danger" type="submit">Resetar senha</button>
+      </form>
+    </div>
+  </li>
+  {% else %}
+  <li class="card">Nenhum funcionário cadastrado.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

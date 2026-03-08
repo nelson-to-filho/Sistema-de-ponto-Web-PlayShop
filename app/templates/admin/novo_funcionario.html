@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Novo Funcionário{% endblock %}
+{% block content %}
+
+<h2 class="h1">Novo Funcionário</h2>
+
+<div class="card">
+  <form method="post" class="form">
+    <div class="form-row">
+      <label>Nome</label>
+      <input type="text" name="nome" required>
+    </div>
+
+    <div class="form-row">
+      <label>E-mail</label>
+      <input type="email" name="email" required>
+    </div>
+
+    <div class="form-row">
+      <label>Senha (opcional)</label>
+      <input type="text" name="senha" placeholder="Se vazio, o sistema gera uma senha temporária">
+    </div>
+
+    <div class="form-row">
+      <label>Carga diária (HH:MM)</label>
+      <input type="text" name="carga_diaria" placeholder="Ex: 08:00" required>
+    </div>
+
+    <div class="form-row">
+      <label>
+        <input type="checkbox" name="intervalo_obrigatorio">
+        Intervalo obrigatório
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Criar</button>
+      <a class="btn btn-outline" href="{{ url_for('admin.funcionarios') }}">Voltar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

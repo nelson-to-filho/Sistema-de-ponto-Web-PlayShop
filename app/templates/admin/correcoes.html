@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Auditoria de Correções{% endblock %}
+{% block content %}
+
+<h2 class="h1">Auditoria — Correções de ponto</h2>
+
+<div class="card">
+  <form method="get" class="form form-wide">
+
+    <div class="form-row">
+      <label>Funcionário</label>
+      <select name="func_id">
+        <option value="">(todos)</option>
+        {% for f in funcionarios %}
+          <option value="{{ f.id }}" {% if filtro_func_id|string == f.id|string %}selected{% endif %}>
+            {{ f.usuario.nome }} (id {{ f.id }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Dia do ponto</label>
+      <input type="date" name="dia" value="{{ filtro_dia }}">
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <a class="btn btn-outline" href="{{ url_for('admin.correcoes') }}">Limpar</a>
+      <a class="btn btn-outline" href="{{ url_for('admin.dashboard') }}">Voltar</a>
+    </div>
+
+  </form>
+</div>
+
+<hr class="sep">
+
+{% if filtro_func_id or filtro_dia %}
+  {% if itens %}
+    <div class="stack">
+      {% for c in itens %}
+        <div class="card">
+
+          <div class="muted text-xs">
+            #{{ c.id }} — {{ c.criado_em.strftime("%d/%m/%Y %H:%M:%S") }}
+          </div>
+
+          <p>
+            <b>Admin:</b> {{ c.admin_nome }}
+            {% if c.motivo %}
+              — <b>Motivo:</b> <i>{{ c.motivo }}</i>
+            {% endif %}
+          </p>
+
+          <p>
+            <b>Ponto:</b> {{ c.ponto_tipo }}
+            {% if c.ponto_data %} — {{ c.ponto_data.strftime("%d/%m/%Y") }}{% endif %}
+            {% if c.ponto_hora %} — {{ c.ponto_hora.strftime("%H:%M:%S") }}{% endif %}
+            {% if c.funcionario_id %} — Func ID: {{ c.funcionario_id }}{% endif %}
+          </p>
+
+          <details>
+            <summary><b>Ver antes/depois</b></summary>
+            <div class="stack mt-10">
+              <div>
+                <b>Antes:</b>
+                <pre class="pre">{{ c.antes }}</pre>
+              </div>
+
+              <div>
+                <b>Depois:</b>
+                <pre class="pre">{{ c.depois }}</pre>
+              </div>
+            </div>
+          </details>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">Nenhuma correção encontrada para os filtros informados.</p>
+  {% endif %}
+{% else %}
+  <p class="muted">Selecione ao menos um filtro para visualizar as correções.</p>
+{% endif %}
+
+{% endblock %}

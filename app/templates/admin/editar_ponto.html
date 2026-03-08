@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Editar ponto{% endblock %}
+{% block content %}
+
+<h2 class="h1">Editar ponto</h2>
+<p class="muted">
+  Funcionário: <b>{{ funcionario.usuario.nome }}</b> — {{ funcionario.usuario.email }}
+</p>
+
+<div class="card">
+  <div class="actions" style="justify-content: space-between;">
+    <h3 class="h2" style="margin:0;">Correção</h3>
+    <div class="actions" style="gap:8px;">
+      <span class="badge">tipo: {{ ponto.tipo }}</span>
+      <span class="badge">{{ ponto.data.strftime("%d/%m/%Y") }}</span>
+    </div>
+  </div>
+
+  <div class="mt-10">
+    <form method="post" class="form">
+      <div class="form-row">
+        <label>Hora</label>
+        <input type="time" name="hora" value="{{ ponto.hora.strftime('%H:%M') }}" required>
+      </div>
+
+      <div class="form-row">
+        <label>Motivo (opcional)</label>
+        <input type="text" name="motivo" maxlength="25" value="">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Salvar correção</button>
+
+        <a class="btn"
+           href="{{ url_for('admin.pontos_funcionario', func_id=funcionario.id, dia=ponto.data.isoformat()) }}">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

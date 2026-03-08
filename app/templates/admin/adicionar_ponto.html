@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Adicionar ponto{% endblock %}
+{% block content %}
+
+<h2 class="h1">Adicionar ponto</h2>
+<p class="muted">
+  Funcionário: <b>{{ funcionario.usuario.nome }}</b> — {{ funcionario.usuario.email }}
+</p>
+
+<div class="card">
+  <div class="actions" style="justify-content: space-between;">
+    <h3 class="h2" style="margin:0;">Dados do ponto</h3>
+    <span class="badge">{{ dia.strftime("%d/%m/%Y") }}</span>
+  </div>
+
+  <div class="mt-10">
+    <form method="post" class="form">
+      <div class="form-row">
+        <label>Tipo</label>
+        <select name="tipo" required>
+          <option value="entrada">entrada</option>
+          <option value="intervalo_inicio">intervalo_inicio</option>
+          <option value="intervalo_fim">intervalo_fim</option>
+          <option value="saida">saida</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Hora</label>
+        <input type="time" name="hora" required>
+      </div>
+
+      <div class="form-row">
+        <label>Motivo (opcional)</label>
+        <input type="text" name="motivo" maxlength="25" value="">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+
+        <a class="btn"
+           href="{{ url_for('admin.pontos_funcionario', func_id=funcionario.id, dia=dia.isoformat()) }}">
+          Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

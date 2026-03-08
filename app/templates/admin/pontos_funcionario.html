@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Pontos do funcionário{% endblock %}
+{% block content %}
+
+<h2 class="h1">Pontos — {{ funcionario.usuario.nome }}</h2>
+<p class="muted">E-mail: {{ funcionario.usuario.email }}</p>
+
+<div class="card">
+  <form method="get" class="form form-wide">
+    <div class="form-row">
+      <label>Dia</label>
+      <input type="date" name="dia" value="{{ dia.isoformat() }}">
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Ver</button>
+
+      <a class="btn btn-accent"
+        href="{{ url_for('admin.adicionar_ponto', func_id=funcionario.id, dia=dia.isoformat()) }}">
+        + Adicionar ponto neste dia
+      </a>
+
+      <a class="btn btn-outline" href="{{ url_for('admin.correcoes_funcionario', func_id=funcionario.id) }}">
+        Ver correções do funcionário
+      </a>
+
+      <a class="btn btn-outline" href="{{ url_for('admin.funcionarios') }}">
+        Voltar
+      </a>
+    </div>
+  </form>
+</div>
+
+<hr class="sep">
+
+<div class="card">
+  <div class="card-head">
+    <h3 class="h2">Pontos do dia</h3>
+    <span class="badge">{{ dia.strftime("%d/%m/%Y") }}</span>
+  </div>
+
+  {% if pontos %}
+  <div class="mt-10">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Hora</th>
+          <th>Origem</th>
+          <th style="width: 160px;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pontos %}
+        <tr>
+          <td><b>{{ p.tipo }}</b></td>
+          <td>{{ p.hora.strftime("%H:%M:%S") }}</td>
+          <td>{{ p.origem }}</td>
+          <td>
+            <div class="table-actions">
+              <a class="btn btn-outline" href="{{ url_for('admin.editar_ponto', ponto_id=p.id) }}">Editar</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="muted mt-10">Sem pontos nesse dia.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

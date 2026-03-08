@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Editar Funcionário{% endblock %}
+{% block content %}
+
+<h2 class="h1">Editar Funcionário</h2>
+
+<p class="muted">
+  {{ funcionario.usuario.nome }} — {{ funcionario.usuario.email }}
+</p>
+
+<div class="card">
+  <form method="post" class="form">
+    <div class="form-row">
+      <label>Carga diária (HH:MM)</label>
+      <input
+        type="text"
+        name="carga_diaria"
+        value="{{ '%02d:%02d'|format(funcionario.carga_diaria_min // 60, funcionario.carga_diaria_min % 60) }}"
+        required
+      >
+    </div>
+
+    <div class="form-row">
+      <label>
+        <input type="checkbox" name="intervalo_obrigatorio"
+          {% if funcionario.intervalo_obrigatorio %}checked{% endif %}>
+        Intervalo obrigatório
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a class="btn btn-outline" href="{{ url_for('admin.funcionarios') }}">Voltar</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

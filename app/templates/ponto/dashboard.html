@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Meu Ponto{% endblock %}
+
+{% block content %}
+
+{% macro fmt_min(m) -%}
+  {%- if m is none -%}
+    -
+  {%- else -%}
+    {%- set sign = "-" if m < 0 else "" -%}
+    {%- set mm = (m | abs) -%}
+    {%- set h = (mm // 60) -%}
+    {%- set mi = (mm % 60) -%}
+    {{ sign }}{{ "%02d:%02d"|format(h, mi) }}
+  {%- endif -%}
+{%- endmacro %}
+
+{% set tipos_hoje = (pontos_dia | map(attribute="tipo") | list) if pontos_dia else [] %}
+{% set status_raw = dia_trabalho.status if dia_trabalho else None %}
+{% set status_ok = (status_raw == "completo") %}
+
+{% if dia_trabalho %}
+  {% if status_ok %}
+    {% set status_label = "Completo" %}
+    {% set status_class = "badge-success" %}
+  {% else %}
+    {% set status_label = "Pendente/Inválido" %}
+    {% set status_class = "badge-warning" %}
+  {% endif %}
+{% else %}
+  {% set status_label = "Pendente" %}
+  {% set status_class = "badge-warning" %}
+{% endif %}
+
+{% if saldo_mes > 0 %}
+  {% set saldo_class = "text-success" %}
+  {% set saldo_desc = "(crédito)" %}
+{% elif saldo_mes < 0 %}
+  {% set saldo_class = "text-danger" %}
+  {% set saldo_desc = "(débito)" %}
+{% else %}
+  {% set saldo_class = "text-muted" %}
+  {% set saldo_desc = "(zerado)" %}
+{% endif %}
+
+<h2 class="h1">Área do Funcionário</h2>
+<p class="muted">Bem-vindo, {{ current_user.nome }}</p>
+
+<div class="card stack">
+
+  <div>
+    <h3 class="h2">Registrar ponto</h3>
+    <p class="muted">Hoje: {{ hoje.strftime("%d/%m/%Y") }}</p>
+
+    <div class="actions">
+      <form method="post" action="{{ url_for('ponto.bater_ponto', tipo='entrada') }}">
+        <button class="btn btn-primary" type="submit" {% if "entrada" in tipos_hoje %}disabled{% endif %}>
+          Entrada
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('ponto.bater_ponto', tipo='intervalo_inicio') }}">
+        <button class="btn btn-outline" type="submit" {% if "intervalo_inicio" in tipos_hoje %}disabled{% endif %}>
+          Intervalo (Início)
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('ponto.bater_ponto', tipo='intervalo_fim') }}">
+        <button class="btn btn-outline" type="submit" {% if "intervalo_fim" in tipos_hoje %}disabled{% endif %}>
+          Intervalo (Fim)
+        </button>
+      </form>
+
+      <form method="post" action="{{ url_for('ponto.bater_ponto', tipo='saida') }}">
+        <button class="btn btn-accent" type="submit" {% if "saida" in tipos_hoje %}disabled{% endif %}>
+          Saída
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <hr class="sep">
+
+  <div>
+    <h3 class="h2">Pontos de hoje</h3>
+
+    {% if pontos_dia %}
+      <div class="point-list">
+        {% for p in pontos_dia %}
+          <div class="point-item">
+            <span class="badge">{{ p.tipo }}</span>
+            <strong>{{ p.hora.strftime("%H:%M:%S") }}</strong>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="muted">Nenhum ponto registrado hoje.</p>
+    {% endif %}
+  </div>
+
+  <hr class="sep">
+
+  <div>
+    <h3 class="h2">Status do dia</h3>
+    <p>
+      <b>Status:</b>
+      <span class="badge {{ status_class }}">{{ status_label }}</span>
+    </p>
+  </div>
+
+  <hr class="sep">
+
+  <div>
+    <h3 class="h2">Saldo do mês</h3>
+    <p>
+      <b>Acumulado (mês atual):</b>
+      <span class="{{ saldo_class }}">{{ fmt_min(saldo_mes) }} {{ saldo_desc }}</span>
+    </p>
+  </div>
+
+</div>
+
+{% endblock %}

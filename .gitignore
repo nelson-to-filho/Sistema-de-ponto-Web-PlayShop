@@ -1,0 +1,33 @@
+# ambiente virtual
+venv/
+
+# variáveis de ambiente
+.env
+
+# banco local
+instance/
+*.db
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+
+# vscode
+.vscode/
+
+# migrations cache
+migrations/__pycache__/
+
+# logs
+*.log
+
+# node
+node_modules/
+npm-debug.log*
+
+# arquivos de estudo / rascunhos
+Documentação e Estudos/
+
+# sistema
+.DS_Store
