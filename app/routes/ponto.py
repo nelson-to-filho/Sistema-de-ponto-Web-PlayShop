@@ -63,7 +63,8 @@ def dashboard():
     if not funcionario:
         return redirect(url_for("auth.login"))
 
-    hoje = agora.date()
+    tz = pytz.timezone("America/Sao_Paulo")
+    hoje = datetime.now(tz).date()
 
     pontos_dia = (
         Ponto.query
@@ -130,8 +131,7 @@ def bater_ponto(tipo: str):
             flash("Você não pode registrar Intervalo (Fim) sem Intervalo (Início).", "error")
             return redirect(url_for("ponto.dashboard"))
 
-    tz = pytz.timezone("America/Sao_Paulo")
-    agora = datetime.now(tz)
+
 
     ponto = Ponto(
         funcionario_id=funcionario.id,
