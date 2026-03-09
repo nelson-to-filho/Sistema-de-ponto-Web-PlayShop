@@ -2,6 +2,8 @@ from datetime import datetime, date
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user, logout_user
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime
+import pytz
 
 from app import db
 from app.models import Funcionario, Ponto, DiaTrabalho
@@ -61,7 +63,7 @@ def dashboard():
     if not funcionario:
         return redirect(url_for("auth.login"))
 
-    hoje = date.today()
+    hoje = agora.date()
 
     pontos_dia = (
         Ponto.query
@@ -128,7 +130,8 @@ def bater_ponto(tipo: str):
             flash("Você não pode registrar Intervalo (Fim) sem Intervalo (Início).", "error")
             return redirect(url_for("ponto.dashboard"))
 
-    agora = datetime.now()
+    tz = pytz.timezone("America/Sao_Paulo")
+    agora = datetime.now(tz)
 
     ponto = Ponto(
         funcionario_id=funcionario.id,
