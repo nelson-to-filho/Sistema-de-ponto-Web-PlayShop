@@ -12,8 +12,8 @@ def login():
     if current_user.is_authenticated:
         # Se já está logado, redireciona por perfil
         if current_user.tipo == "admin":
-            return redirect(url_for("main.home"))
-        return redirect(url_for("main.home"))
+           return redirect(url_for("main.index"))
+        return redirect(url_for("main.index"))
     
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()

@@ -2,7 +2,6 @@ from datetime import datetime, date
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user, logout_user
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
 import pytz
 
 from app import db
@@ -108,7 +107,9 @@ def bater_ponto(tipo: str):
         return redirect(url_for("auth.login"))
 
 
-    hoje = date.today()
+    tz = pytz.timezone("America/Sao_Paulo")
+    agora = datetime.now(tz)
+    hoje = agora.date()
 
     # Regras básicas de sequência (MVP)
     if tipo == "saida":
