@@ -17,20 +17,27 @@
 
 {% set tipos_hoje = (pontos_dia | map(attribute="tipo") | list) if pontos_dia else [] %}
 {% set status_raw = dia_trabalho.status if dia_trabalho else None %}
-{% set status_ok = (status_raw == "completo") %}
 
-{% if dia_trabalho %}
-  {% if status_ok %}
-    {% set status_label = "Completo" %}
-    {% set status_class = "badge-success" %}
-  {% else %}
-    {% set status_label = "Pendente/Inválido" %}
-    {% set status_class = "badge-warning" %}
-  {% endif %}
+{% if not dia_trabalho %}
+  {% set status_label = "Pendente" %}
+  {% set status_class = "badge-warning" %}
+{% elif status_raw == "completo" %}
+  {% set status_label = "Completo" %}
+  {% set status_class = "badge-success" %}
+{% elif status_raw == "em_andamento" %}
+  {% set status_label = "Em andamento" %}
+  {% set status_class = "badge-primary" %}
+{% elif status_raw == "pendente" or status_raw == "incompleto_saida" or status_raw == "incompleto_intervalo" %}
+  {% set status_label = "Pendente" %}
+  {% set status_class = "badge-warning" %}
+{% elif "invalido" in status_raw %}
+  {% set status_label = "Inválido" %}
+  {% set status_class = "badge-danger" %}
 {% else %}
   {% set status_label = "Pendente" %}
   {% set status_class = "badge-warning" %}
 {% endif %}
+
 
 {% if saldo_mes > 0 %}
   {% set saldo_class = "text-success" %}

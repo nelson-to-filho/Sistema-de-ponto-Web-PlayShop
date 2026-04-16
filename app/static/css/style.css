@@ -459,6 +459,18 @@ select:focus {
   color: var(--warn-text);
 }
 
+.badge-primary {
+  background: rgba(14, 165, 233, 0.10);
+  border-color: rgba(14, 165, 233, 0.30);
+  color: var(--primary-dark);
+}
+
+.badge-danger {
+  background: var(--error-bg);
+  border-color: var(--error-border);
+  color: var(--error-text);
+}
+
 .text-success {
   color: var(--success-text);
   font-weight: 700;

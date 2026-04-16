@@ -15,6 +15,7 @@ def calcular_e_atualizar_dia(funcionario: Funcionario, dia: date) -> DiaTrabalho
     pontos = (
         Ponto.query
         .filter_by(funcionario_id=funcionario.id, data=dia)
+        .order_by(Ponto.hora.asc())
         .all()
     )
 
@@ -31,55 +32,80 @@ def calcular_e_atualizar_dia(funcionario: Funcionario, dia: date) -> DiaTrabalho
     minutos_trabalhados = None
     saldo_minutos = None
 
+    dt_entrada = datetime.combine(dia, entrada.hora) if entrada else None
+    dt_saida = datetime.combine(dia, saida.hora) if saida else None
+    dt_i_ini = datetime.combine(dia, i_ini.hora) if i_ini else None
+    dt_i_fim = datetime.combine(dia, i_fim.hora) if i_fim else None
+
+    status = "incompleto_entrada"
+    minutos_trabalhados = None
+    saldo_minutos = None
+
+    
+
     if not entrada:
         status = "incompleto_entrada"
 
-    elif not saida:
-        status = "incompleto_saida"
+    # sequência inválida básica
+    elif i_fim and not i_ini:
+        status = "invalido_sequencia"
 
-    else:
-        dt_entrada = datetime.combine(dia, entrada.hora)
-        dt_saida = datetime.combine(dia, saida.hora)
+    elif i_ini and dt_i_ini <= dt_entrada:
+        status = "invalido_sequencia"
 
-        if dt_saida <= dt_entrada:
-            status = "invalido_horarios"
+    elif i_fim and dt_i_fim <= dt_entrada:
+        status = "invalido_sequencia"
 
-        else:
-            total = int((dt_saida - dt_entrada).total_seconds() // 60)
+    elif i_ini and i_fim and dt_i_fim <= dt_i_ini:
+        status = "invalido_intervalo"
 
-            # intervalo obrigatório
-            if funcionario.intervalo_obrigatorio:
-                if not i_ini or not i_fim:
-                    status = "incompleto_intervalo"
-                else:
-                    dt_i_ini = datetime.combine(dia, i_ini.hora)
-                    dt_i_fim = datetime.combine(dia, i_fim.hora)
+    elif saida and dt_saida <= dt_entrada:
+        status = "invalido_horarios"
 
-                    if dt_i_fim <= dt_i_ini:
-                        status = "invalido_intervalo"
-                    else:
-                        intervalo = int((dt_i_fim - dt_i_ini).total_seconds() // 60)
-                        minutos_trabalhados = max(total - intervalo, 0)
-                        saldo_minutos = minutos_trabalhados - minutos_previstos
-                        status = "completo"
+    elif saida and i_ini and dt_saida <= dt_i_ini:
+        status = "invalido_sequencia"
 
-            # intervalo não obrigatório
+    elif saida and i_fim and dt_saida <= dt_i_fim:
+        status = "invalido_sequencia"
+
+    # ainda em andamento: só entrada
+    elif entrada and not saida and not i_ini and not i_fim:
+        status = "em_andamento"
+
+    # ainda em andamento: iniciou intervalo mas ainda não finalizou
+    elif entrada and i_ini and not i_fim and not saida:
+        status = "em_andamento"
+
+    # voltou do intervalo, mas ainda não bateu saída
+    elif entrada and i_ini and i_fim and not saida:
+        status = "pendente"
+
+    # bateu entrada e saída
+    elif entrada and saida:
+        total = int((dt_saida - dt_entrada).total_seconds() // 60)
+
+        # funcionário com intervalo obrigatório
+        if funcionario.intervalo_obrigatorio:
+            if not i_ini or not i_fim:
+                status = "pendente"
             else:
-                if i_ini and i_fim:
-                    dt_i_ini = datetime.combine(dia, i_ini.hora)
-                    dt_i_fim = datetime.combine(dia, i_fim.hora)
-
-                    # se intervalo invertido, ignora intervalo (não invalida o dia)
-                    if dt_i_fim > dt_i_ini:
-                        intervalo = int((dt_i_fim - dt_i_ini).total_seconds() // 60)
-                        minutos_trabalhados = max(total - intervalo, 0)
-                    else:
-                        minutos_trabalhados = total
-                else:
-                    minutos_trabalhados = total
-
+                intervalo = int((dt_i_fim - dt_i_ini).total_seconds() // 60)
+                minutos_trabalhados = max(total - intervalo, 0)
                 saldo_minutos = minutos_trabalhados - minutos_previstos
                 status = "completo"
+
+        # funcionário sem intervalo obrigatório
+        else:
+            if i_ini and i_fim:
+                intervalo = int((dt_i_fim - dt_i_ini).total_seconds() // 60)
+                minutos_trabalhados = max(total - intervalo, 0)
+            else:
+                minutos_trabalhados = total
+
+            saldo_minutos = minutos_trabalhados - minutos_previstos
+            status = "completo"
+
+    
 
     dia_trabalho = DiaTrabalho.query.filter_by(funcionario_id=funcionario.id, data=dia).first()
 
